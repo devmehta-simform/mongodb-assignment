@@ -10,3 +10,9 @@ export const loginUser = middlewareWrapper(async (req, res, next) => {
   }
   return res.status(401).json('wrong credentials');
 });
+
+export const getUser = middlewareWrapper(async (req, res, next) => {
+  const id = req.params['id'];
+  const user = await UserModel.findOne({ id });
+  return res.status(200).json(user);
+});
