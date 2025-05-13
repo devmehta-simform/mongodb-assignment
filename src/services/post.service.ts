@@ -8,10 +8,26 @@ export const getAllPosts = middlewareWrapper(async (req, res, next) => {
   if (page && pageOffset) {
     const tmpPage = parseInt(page);
     const tmpPageOffset = parseInt(pageOffset);
-    const totalItems = PostModel.countDocuments();
-    const posts = PostModel.aggregate([{ $skip: (tmpPage - 1) * tmpPageOffset }, { $limit: tmpPageOffset }]);
-    const result = await Promise.all([totalItems, posts]);
-    return res.status(200).json({ totalItems: result[0], posts: result[1] });
+    const posts = await PostModel.aggregate([
+      {
+        $facet: {
+          posts: [
+            {
+              $skip: (tmpPage - 1) * tmpPageOffset,
+            },
+            {
+              $limit: tmpPageOffset,
+            },
+          ],
+          totalItems: [
+            {
+              $count: 'id',
+            },
+          ],
+        },
+      },
+    ]);
+    return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0].id });
   } else {
     const posts = await PostModel.aggregate([{ $sort: { id: -1 } }]);
     return res.status(200).json(posts);
