@@ -3,8 +3,19 @@ import { Post } from '../types/post';
 import { middlewareWrapper } from '../utils/asyncMiddlewareWrapper';
 
 export const getAllPosts = middlewareWrapper(async (req, res, next) => {
-  const posts = await PostModel.aggregate([{ $sort: { id: -1 } }]);
-  return res.status(200).json(posts);
+  const page = req.query['page']?.toString();
+  const pageOffset = req.query['pageOffset']?.toString();
+  if (page && pageOffset) {
+    const tmpPage = parseInt(page);
+    const tmpPageOffset = parseInt(pageOffset);
+    const totalItems = PostModel.countDocuments();
+    const posts = PostModel.aggregate([{ $skip: (tmpPage - 1) * tmpPageOffset }, { $limit: tmpPageOffset }]);
+    const result = await Promise.all([totalItems, posts]);
+    return res.status(200).json({ totalItems: result[0], posts: result[1] });
+  } else {
+    const posts = await PostModel.aggregate([{ $sort: { id: -1 } }]);
+    return res.status(200).json(posts);
+  }
 });
 
 export const getPostById = middlewareWrapper(async (req, res, next) => {
