@@ -5,31 +5,72 @@ import { middlewareWrapper } from '../utils/asyncMiddlewareWrapper';
 export const getAllPosts = middlewareWrapper(async (req, res, next) => {
   const page = req.query['page']?.toString();
   const pageOffset = req.query['pageOffset']?.toString();
+  const searchQuery = req.query['search']?.toString();
   if (page && pageOffset) {
     const tmpPage = parseInt(page);
     const tmpPageOffset = parseInt(pageOffset);
+
+    if (!searchQuery) {
+      const posts = await PostModel.aggregate([
+        {
+          $facet: {
+            posts: [
+              {
+                $skip: (tmpPage - 1) * tmpPageOffset,
+              },
+              {
+                $limit: tmpPageOffset,
+              },
+            ],
+            totalItems: [
+              {
+                $count: 'id',
+              },
+            ],
+          },
+        },
+      ]);
+      return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0].id });
+    } else {
+      const posts = await PostModel.aggregate([
+        {
+          $match: {
+            $or: [
+              {
+                title: { $regex: searchQuery },
+              },
+              {
+                body: { $regex: searchQuery },
+              },
+            ],
+          },
+        },
+        {
+          $facet: {
+            posts: [
+              {
+                $skip: (tmpPage - 1) * tmpPageOffset,
+              },
+              {
+                $limit: tmpPageOffset,
+              },
+            ],
+            totalItems: [
+              {
+                $count: 'id',
+              },
+            ],
+          },
+        },
+      ]);
+      return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0].id });
+    }
+  } else {
     const posts = await PostModel.aggregate([
       {
-        $facet: {
-          posts: [
-            {
-              $skip: (tmpPage - 1) * tmpPageOffset,
-            },
-            {
-              $limit: tmpPageOffset,
-            },
-          ],
-          totalItems: [
-            {
-              $count: 'id',
-            },
-          ],
-        },
+        $sort: { id: -1 },
       },
     ]);
-    return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0].id });
-  } else {
-    const posts = await PostModel.aggregate([{ $sort: { id: -1 } }]);
     return res.status(200).json(posts);
   }
 });
