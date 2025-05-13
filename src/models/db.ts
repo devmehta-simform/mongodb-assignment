@@ -1,22 +1,22 @@
 import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
-  id: String,
+  id: Number,
   name: String,
   username: String,
   email: String,
 });
 
 const PostSchema = new mongoose.Schema({
-  userId: String,
-  id: String,
+  userId: Number,
+  id: Number,
   title: String,
   body: String,
 });
 
 const CommentSchema = new mongoose.Schema({
-  postId: String,
-  id: String,
+  postId: Number,
+  id: Number,
   name: String,
   email: String,
   body: String,
