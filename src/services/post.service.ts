@@ -30,7 +30,7 @@ export const getAllPosts = middlewareWrapper(async (req, res, next) => {
           },
         },
       ]);
-      return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0].id });
+      return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0]?.id });
     } else {
       const posts = await PostModel.aggregate([
         {
@@ -63,7 +63,7 @@ export const getAllPosts = middlewareWrapper(async (req, res, next) => {
           },
         },
       ]);
-      return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0].id });
+      return res.status(200).json({ posts: posts[0].posts, totalItems: posts[0].totalItems[0]?.id });
     }
   } else {
     const posts = await PostModel.aggregate([
