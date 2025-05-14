@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.10
 info:
   title: Mongodb assignment api
   version: 1.0.0
@@ -28,11 +28,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-              example:
-                id: 1
-                name: 'morty smith'
-                username: 'morty123'
-                email: 'mortysmith@example.com'
         '401':
           description: 'unauthorized'
           content:
@@ -62,6 +57,7 @@ paths:
 components:
   schemas:
     User:
+      type: object
       properties:
         id:
           type: integer
@@ -71,3 +67,8 @@ components:
           type: string
         email:
           type: string
+      example:
+        id: 1
+        name: 'morty smith'
+        username: 'morty123'
+        email: 'mortysmith@example.com'

@@ -13,6 +13,6 @@ export const loginUser = middlewareWrapper(async (req, res, next) => {
 
 export const getUser = middlewareWrapper(async (req, res, next) => {
   const id = req.params['id'];
-  const user = await UserModel.findOne({ id });
+  const user = await UserModel.findOne({ id }, { email: 1, id: 1, name: 1, username: 1, _id: 0 });
   return res.status(200).json(user);
 });
